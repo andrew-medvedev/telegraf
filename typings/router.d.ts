@@ -1,37 +1,18 @@
 /** @format */
-
-import { MiddlewareObj, Middleware, MiddlewareFn } from './composer'
-import { TelegrafContext } from './context'
-
-type TRoute = string
-type MaybePromise<T> = T | Promise<T>
-
-export type RouteFn<TContext extends TelegrafContext> = (
-  ctx: TContext
-) => MaybePromise<{
-  route?: TRoute
-} | null>
-
-type HandlersMap<TContext extends TelegrafContext> = Map<
-  TRoute,
-  Middleware<TContext>
->
-
-declare class Router<TContext extends TelegrafContext>
-  implements MiddlewareObj<TContext> {
-  routeFn: RouteFn<TContext>
-  handlers: HandlersMap<TContext>
-  otherwiseHandler: Middleware<TContext>
-
-  constructor(routeFn: RouteFn<TContext>, handlers?: HandlersMap<TContext>)
-
-  on(
-    route: TRoute,
-    fn: Middleware<TContext>,
-    ...fns: Middleware<TContext>[]
-  ): this
-
-  otherwise(fn: Middleware<TContext>, ...fns: Middleware<TContext>[]): this
-
-  middleware(): MiddlewareFn<TContext>
+import { Middleware, NonemptyReadonlyArray } from './types';
+import Context from './context';
+declare type RouteFn<TContext extends Context> = (ctx: TContext) => {
+    route: string;
+    context?: Partial<TContext>;
+    state?: Partial<TContext['state']>;
+} | null;
+export declare class Router<TContext extends Context> implements Middleware.Obj<TContext> {
+    private readonly routeFn;
+    handlers: Map<string, Middleware<TContext>>;
+    private otherwiseHandler;
+    constructor(routeFn: RouteFn<TContext>, handlers?: Map<string, Middleware<TContext>>);
+    on(route: string, ...fns: NonemptyReadonlyArray<Middleware<TContext>>): this;
+    otherwise(...fns: NonemptyReadonlyArray<Middleware<TContext>>): this;
+    middleware(): Middleware.Fn<TContext>;
 }
+export {};
