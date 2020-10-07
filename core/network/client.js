@@ -277,6 +277,13 @@ class ApiClient {
       })
       .then((data) => {
         if (!data.ok) {
+          if(data.error_code === 409 && data.description.startsWith('Conflict: terminated by other')){
+            if(method.startsWith('getUpdates')){
+              return [];
+            } else {
+              return null;
+            }
+          }
           debug('API call failed', data)
           throw new TelegramError(data, { method, payload })
         }
